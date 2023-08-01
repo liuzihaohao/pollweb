@@ -1,0 +1,42 @@
+{% extends '../base_logined.html' %}
+
+{% block title%}管理后台{% endblock %}
+
+{% block content %}
+<h2>管理后台</h2>
+<style>
+</style>
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#start" aria-controls="start" role="tab" data-toggle="tab">状态</a></li>
+        <li role="presentation"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">日志</a></li>
+        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">用户</a></li>
+        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">群组</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="start">
+            <h3>已运行<span id="runtime">{{ttm}}</span>s</h3>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="home">
+            <h3><a href="/basic/log/">查看</a></h3>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="profile">
+            <h3><a href="/basic/user/list/">查看</a></h3>
+            <h3><a href="/basic/user/add/">增加</a></h3>
+            <h3><a href="/basic/user/list/">修改</a></h3>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="messages">
+            <h3><a href="/basic/group/list/">查看</a></h3>
+            <h3><a href="/basic/group/add/">增加</a></h3>
+            <h3><a href="/basic/group/list/">修改</a></h3>
+        </div>
+    </div>
+</div>
+<script>
+var fisttime={{ttm}};
+setInterval(function(){
+    fisttime++;
+    document.getElementById("runtime").innerText=fisttime;
+},1000)
+</script>
+{% endblock %}

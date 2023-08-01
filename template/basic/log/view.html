@@ -1,0 +1,42 @@
+{% extends '../../base_logined.html' %}
+
+{% block title%}日志查看{% endblock %}
+
+{% block content %}
+<h2>日志查看</h2>
+<div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>用户</th>
+            <th>对象</th>
+            <th>操作类型</th>
+            <th>时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in page_1 %}
+        <tr>
+            <th scope="row">{{ i.id }}</th>
+            <td>{{ i.from_user }}</td>
+            <td>{{ i.from_obj }}</td>
+            <td>{{ i.do_type }}</td>
+            <td>{{ i.create_data }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if page_1.has_other_pages %}   
+    <div class="text-center">
+        {% if page_1.has_previous  %}
+        <a class="text-secondary" href="?page={{page_1.previous_page_number}}">上一页</a>
+        {%endif%}
+        <span class="mx-2">第&nbsp;{{page_1.number}}&nbsp;/&nbsp;{{ page_1.paginator.num_pages }}&nbsp;页</span>
+        {%  if page_1.has_next %}
+        <a class="text-success" href="?page={{page_1.next_page_number}}">下一页</a>
+        {%  endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
