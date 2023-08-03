@@ -56,11 +56,32 @@
       </nav>
       <div class="container">
         {% if messages %}
-        <div class="alert alert-warning" role="alert">
-            {% for message in messages %}
-            <a href="#" class="alert-link">{{ message }}</a>
-            {% endfor %}
-        </div>
+          {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Error</strong>:{{ message }}
+            </div>
+            {% endif %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+            <div class="alert alert-warning alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Warning</strong>:{{ message }}
+            </div>
+            {% endif %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <div class="alert alert-success alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Success</strong>:{{ message }}
+            </div>
+            {% endif %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+            <div class="alert alert-info alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <strong>Info</strong>:{{ message }}
+            </div>
+            {% endif %}
+          {% endfor %}
         {% endif %}
         {% block content %}None{% endblock %}
       </div>

@@ -17,10 +17,11 @@ log_db_urlpatterns = [
 ]
 
 user_db_urlpatterns = [
-    path('list/', admin.site.urls),
-    path('add/', admin.site.urls),
-    path('<int:uid>/', admin.site.urls),
-    path('<int:uid>/edit/', admin.site.urls),
+    path('list/', view_user),
+    path('add/', add_user),
+    path('<int:uid>/', view_one_user),
+    path('<int:uid>/edit/', edit_user),
+    path('<int:uid>/del_active/', view_user),
     path('<int:uid>/del/', admin.site.urls),
 ]
 

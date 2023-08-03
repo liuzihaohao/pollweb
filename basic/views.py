@@ -49,7 +49,6 @@ def login(request):
 @login_required
 def index(request):
     return redirect("/poll/")
-    # return render(request, "base_logined.html",{"username":request.user.username})
 
 @login_required
 def logout(request):
@@ -79,14 +78,99 @@ def change_password(request):
         
 @login_required
 def view_log(request):
-    page = request.GET.get('page',1)
-    limit = 30
-    all_count=None
-    all_count=Log.objects.all()
-    paginator = Paginator(all_count, limit)
-    page_1 = paginator.get_page(page)
-    return render(request, "basic/log/view.html",{'page_1':page_1,"request":request})
+    if request.user.is_superuser or request.user.is_staff:
+        page = request.GET.get('page',1)
+        limit = 30
+        all_count=None
+        all_count=Log.objects.all()
+        paginator = Paginator(all_count, limit)
+        page_1 = paginator.get_page(page)
+        return render(request, "basic/log/view.html",{'page_1':page_1,"request":request})
+    return redirect("/")
 
 @login_required
 def basic_admin(request):
-    return render(request, "basic/admin.html",{'request':request,"ttm":int(time.time()-RUN_TIME)})
+    if request.user.is_superuser or request.user.is_staff:
+        return render(request, "basic/admin.html",{'request':request,"ttm":int(time.time()-RUN_TIME)})
+    return redirect("/")
+
+@login_required
+def view_user(request):
+    if request.user.is_superuser or request.user.is_staff:
+        page = request.GET.get('page',1)
+        limit = 30
+        all_count=None
+        all_count=User.objects.all()
+        paginator = Paginator(all_count, limit)
+        page_1 = paginator.get_page(page)
+        return render(request, "basic/user/view.html",{'page_1':page_1,"request":request})
+    return redirect("/")
+
+@login_required
+def add_user(request):
+    if request.user.is_superuser or request.user.is_staff:
+        if request.method=="GET":
+            return render(request, "basic/user/add.html",{'request':request})
+        else:
+            username=request.POST.get("username")
+            password=request.POST.get("password")
+            email=request.POST.get("email")
+            is_active=True if request.POST.get("is_active") else False
+            is_staff=True if request.POST.get("is_staff") else False
+            is_superuser=True if request.POST.get("is_superuser") else False
+            if User.objects.filter(username=username):
+                messages.add_message(request, messages.ERROR,'用户名已存在')
+                return render(request, "basic/user/add.html",{'request':request})
+            else:
+                User.objects.create_user(
+                    username=username,
+                    password=password,
+                    email=email,
+                    is_active=is_active,
+                    is_staff=is_staff,
+                    is_superuser=is_superuser
+                )
+                messages.add_message(request, messages.INFO,'创建成功')
+                return render(request, "basic/user/add.html",{'request':request})
+    return redirect("/")
+
+@login_required
+def view_one_user(request,uid):
+    return redirect("/basic/user/{}/edit/".format(uid))
+
+@login_required
+def edit_user(request,uid):
+    if request.user.is_superuser or request.user.is_staff:
+        if not User.objects.filter(id=uid):
+            messages.add_message(request, messages.ERROR,'用户不存在')
+            return redirect("/basic/user/{}/edit/".format(uid))
+        
+        obj=User.objects.get(id=uid)
+        
+        if request.method=="GET":
+            return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
+        else:
+            username=request.POST.get("username")
+            password=request.POST.get("password")
+            email=request.POST.get("email")
+            is_active=True if request.POST.get("is_active") else False
+            is_staff=True if request.POST.get("is_staff") else False
+            is_superuser=True if request.POST.get("is_superuser") else False
+            if User.objects.filter(username=username).count()>1:
+                messages.add_message(request, messages.ERROR,'用户名已注册')
+                return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
+            elif User.objects.filter(email=email).count()>1:
+                messages.add_message(request, messages.ERROR,'邮箱已注册')
+                return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
+            else:
+                obj.username=username
+                if password!="":
+                    obj.password=password
+                obj.email=email
+                obj.is_active=is_active
+                obj.is_staff=is_staff
+                obj.is_superuser=is_superuser
+                obj.save()
+                messages.add_message(request, messages.INFO,'修改成功')
+                return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
+    return redirect("/")
