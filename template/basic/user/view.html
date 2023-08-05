@@ -45,7 +45,24 @@
             <td>
                 <button onclick="window.location.href='/basic/user/{{ i.id }}/edit/'" type="button" class="btn btn-warning">修改</button>
                 <button onclick="window.location.href='/basic/user/{{ i.id }}/del_active/'" type="button" class="btn btn-danger">停用</button>
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">删除</button>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal{{ i.id }}">删除</button>
+                <div class="modal fade" id="myModal{{ i.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">确认操作</h4>
+                      </div>
+                      <div class="modal-body">
+                          你确认要删除吗?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                        <button onclick="window.location.href='/basic/user/{{ i.id }}/del/'" type="button" class="btn btn-default">删除</button>
+                      </div>
+                    </div>
+                  </div>
+                 </div>
             </td>
         </tr>
         {% endfor %}
@@ -63,21 +80,4 @@
     </div>
     {% endif %}
 </div>
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">确认操作</h4>
-        </div>
-        <div class="modal-body">
-            你确认要删除吗?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-          <button onclick="window.location.href='/basic/user/{{ i.id }}/del/'" type="button" class="btn btn-default">删除</button>
-        </div>
-      </div>
-    </div>
-  </div>
 {% endblock %}

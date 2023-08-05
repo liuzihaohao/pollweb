@@ -21,16 +21,8 @@ user_db_urlpatterns = [
     path('add/', add_user),
     path('<int:uid>/', view_one_user),
     path('<int:uid>/edit/', edit_user),
-    path('<int:uid>/del_active/', view_user),
-    path('<int:uid>/del/', admin.site.urls),
-]
-
-group_db_urlpatterns = [
-    path('list/', admin.site.urls),
-    path('add/', admin.site.urls),
-    path('<int:uid>/', admin.site.urls),
-    path('<int:uid>/edit/', admin.site.urls),
-    path('<int:uid>/del/', admin.site.urls),
+    path('<int:uid>/del_active/', del_active_user),
+    path('<int:uid>/del/', del_user),
 ]
 
 basic_urlpatterns = [

@@ -28,7 +28,7 @@ class Activity(models.Model):
     end_time=models.DateTimeField()
     public_grade=models.CharField(max_length=1,choices=Grade)
     is_all_registered=models.BooleanField()
-    registered_list=models.ManyToManyField('auth.User',related_name="allregistered")
+    registered_list=models.ManyToManyField('auth.User',related_name="allregistered",null=True)
     question_list=models.TextField()
     create_data=models.DateTimeField()
     last_change_data=models.DateTimeField()
@@ -38,11 +38,11 @@ class Activity(models.Model):
 
 class Result(models.Model):
     id=models.AutoField(primary_key=True)
-    from_user=models.ForeignKey('auth.User',on_delete=models.DO_NOTHING)
+    from_user=models.ForeignKey('auth.User',on_delete=models.CASCADE)
     from_activity=models.ForeignKey('Activity',on_delete=models.CASCADE)
     answer_list=models.TextField()
     public_grade_u=models.CharField(max_length=1,choices=Grade_U)
-    create_data=models.DateTimeField()
+    create_data=models.DateTimeField(auto_now=True)
     last_change_data=models.DateTimeField()
     def __str__(self):
         return self.title

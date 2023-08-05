@@ -143,7 +143,7 @@ def edit_user(request,uid):
     if request.user.is_superuser or request.user.is_staff:
         if not User.objects.filter(id=uid):
             messages.add_message(request, messages.ERROR,'用户不存在')
-            return redirect("/basic/user/{}/edit/".format(uid))
+            return redirect("/basic/user/list/")
         
         obj=User.objects.get(id=uid)
         
@@ -156,21 +156,41 @@ def edit_user(request,uid):
             is_active=True if request.POST.get("is_active") else False
             is_staff=True if request.POST.get("is_staff") else False
             is_superuser=True if request.POST.get("is_superuser") else False
-            if User.objects.filter(username=username).count()>1:
+            if (User.objects.filter(username=username).count()==1 and User.objects.filter(username=username).first()!=obj) or User.objects.filter(username=username).count()>1:
                 messages.add_message(request, messages.ERROR,'用户名已注册')
                 return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
-            elif User.objects.filter(email=email).count()>1:
-                messages.add_message(request, messages.ERROR,'邮箱已注册')
-                return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
-            else:
-                obj.username=username
-                if password!="":
-                    obj.password=password
-                obj.email=email
-                obj.is_active=is_active
-                obj.is_staff=is_staff
-                obj.is_superuser=is_superuser
-                obj.save()
-                messages.add_message(request, messages.INFO,'修改成功')
-                return render(request, "basic/user/edit.html",{'request':request,"obj":obj})
+            obj.username=username
+            if password!="":
+                obj.password=password
+            obj.email=email
+            obj.is_active=is_active
+            obj.is_staff=is_staff
+            obj.is_superuser=is_superuser
+            obj.save()
+            messages.add_message(request, messages.INFO,'修改成功')
+            return redirect("/basic/user/list/")
+    return redirect("/")
+
+@login_required
+def del_active_user(request,uid):
+    if request.user.is_superuser or request.user.is_staff:
+        if User.objects.filter(id=uid):
+            obj=User.objects.get(id=uid)
+            obj.is_active=False
+            obj.save()
+            messages.add_message(request, messages.INFO,'操作成功')
+            return redirect("/basic/user/list/")
+        messages.add_message(request, messages.ERROR,'用户不存在')
+        return redirect("/basic/user/list/")
+    return redirect("/")
+
+@login_required
+def del_user(request,uid):
+    if request.user.is_superuser or request.user.is_staff:
+        if User.objects.filter(id=uid):
+            obj=User.objects.get(id=uid).delete()
+            messages.add_message(request, messages.INFO,'操作成功')
+            return redirect("/basic/user/list/")
+        messages.add_message(request, messages.ERROR,'用户不存在')
+        return redirect("/basic/user/list/")
     return redirect("/")
