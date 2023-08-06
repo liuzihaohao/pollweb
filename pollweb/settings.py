@@ -27,6 +27,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+SILENCED_SYSTEM_CHECKS = [
+    'urls.W002',
+    'urls.W005',
+    'fields.W340',
+]
 
 # Application definition
 

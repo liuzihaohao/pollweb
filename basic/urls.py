@@ -29,5 +29,4 @@ basic_urlpatterns = [
     path('', basic_admin),
     path('log/', include(log_db_urlpatterns)),
     path('user/', include(user_db_urlpatterns)),
-    path('group/', include(group_db_urlpatterns)),
 ]

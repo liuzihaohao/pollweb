@@ -1,0 +1,21 @@
+{% extends '../base_logined.html' %}
+
+{% block title%}投票列表{% endblock %}
+
+{% block content %}
+<h2>投票列表<button onclick="window.location.href='/poll/add/'" style="margin: 5px;" type="button" class="btn btn-info">新增</button></h2>
+<div>
+    
+    {% if page_1.has_other_pages %}   
+    <div class="text-center">
+        {% if page_1.has_previous  %}
+        <a class="text-secondary" href="?page={{page_1.previous_page_number}}">上一页</a>
+        {%endif%}
+        <span class="mx-2">第&nbsp;{{page_1.number}}&nbsp;/&nbsp;{{ page_1.paginator.num_pages }}&nbsp;页</span>
+        {%  if page_1.has_next %}
+        <a class="text-success" href="?page={{page_1.next_page_number}}">下一页</a>
+        {%  endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

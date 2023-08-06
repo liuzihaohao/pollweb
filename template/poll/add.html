@@ -1,0 +1,291 @@
+{% extends '../base_logined.html' %}
+
+{% block title%}新增投票活动{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/editormd/css/editormd.min.css">
+<script src="/static/editormd/editormd.js"></script>
+<style>
+    .manytomany {
+        border-color: gray;
+        border-style: dashed;
+    }
+
+    .manytomany div {
+        margin-left: 20px;
+    }
+
+    .label {
+        margin-left: 5px;
+    }
+</style>
+<h2 id="title">新增投票活动</h2>
+<div>
+    <form method="post" action="/poll/add/">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>标题</label>
+            <input name="title" type="text" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>介绍(支持Markdown语法)</label>
+            <div id="texteditor">
+                <textarea name="text" type="text" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>问题列表(json)</label>
+            <div id="qleditor">
+                <textarea name="question_list" type="text" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="from-group">
+            <label>开始时间</label>
+            <div class="input-group">
+                <input name="start_time_y" type="number" class="form-control input-group">
+                <span class="input-group-addon">年</span>
+                <input name="start_time_m" type="number" class="form-control input-group">
+                <span class="input-group-addon">月</span>
+                <input name="start_time_d" type="number" class="form-control input-group">
+                <span class="input-group-addon">日</span>
+                <input name="start_time_h" type="number" class="form-control input-group">
+                <span class="input-group-addon">时</span>
+                <input name="start_time_f" type="number" class="form-control input-group">
+                <span class="input-group-addon">分</span>
+                <input name="start_time_s" type="number" class="form-control input-group">
+                <span class="input-group-addon">秒</span>
+            </div>
+        </div>
+        <div class="from-group">
+            <label>结束时间</label>
+            <div class="input-group">
+                <input name="end_time_y" type="number" class="form-control input-group">
+                <span class="input-group-addon">年</span>
+                <input name="end_time_m" type="number" class="form-control input-group">
+                <span class="input-group-addon">月</span>
+                <input name="end_time_d" type="number" class="form-control input-group">
+                <span class="input-group-addon">日</span>
+                <input name="end_time_h" type="number" class="form-control input-group">
+                <span class="input-group-addon">时</span>
+                <input name="end_time_f" type="number" class="form-control input-group">
+                <span class="input-group-addon">分</span>
+                <input name="end_time_s" type="number" class="form-control input-group">
+                <span class="input-group-addon">秒</span>
+            </div>
+        </div>
+        <div class="from-group">
+            <label>公开等级<a data-toggle="modal" data-target="#myModal"> (帮助)</a></label>
+            <select name="public_grade" class="form-control">
+                <option>public_disclosure</option>
+                <option>partial_disclosure</option>
+                <option>internal_disclosure</option>
+                <option>partial_internal_disclosure</option>
+                <option>internal_confidentiality</option>
+                <option>strictly_confidential</option>
+                <option>system_confidentiality</option>
+            </select>
+        </div>
+        <div class="from-group">
+            <label>邀请的人员(被选中的人可以参与本次投票)</label>
+            <div class="manytomany" id="regperson_list">
+                {%for i in User%}
+                <div class="checkbox">
+                    <label><input onclick="regperson_change(this)" type="checkbox" value="">{{i.username}}</label>
+                    {%if not i.is_active%}
+                    <span class="label label-default">UnActive</span>
+                    {%endif%}
+                    {%if i.is_superuser%}
+                    <span class="label label-success">SuperAdmin</span>
+                    {%endif%}
+                    {%if i.is_staff%}
+                    <span class="label label-info">Staff</span>
+                    {%endif%}
+                </div>
+                {%endfor%}
+            </div>
+            <select style="display: none;" name="registered_list" multiple id="regperson_real">
+                {%for i in User%}
+                <option>{{i.username}}</option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="from-group">
+            <label>管理人员(被选中的人可以修改此活动)</label>
+            <div class="manytomany" id="admperson_list">
+                {%for i in User%}
+                <div class="checkbox">
+                    <label><input onclick="admperson_change(this)" type="checkbox" value="">{{i.username}}</label>
+                    {%if not i.is_active%}
+                    <span class="label label-default">UnActive</span>
+                    {%endif%}
+                    {%if i.is_superuser%}
+                    <span class="label label-success">SuperAdmin</span>
+                    {%endif%}
+                    {%if i.is_staff%}
+                    <span class="label label-info">Staff</span>
+                    {%endif%}
+                </div>
+                {%endfor%}
+            </div>
+            <select style="display: none;" name="admins" multiple id="admperson_real">
+                {%for i in User%}
+                <option>{{i.username}}</option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input name="is_all_registered" type="checkbox" checked> 是否邀请所有人参加(勾选此项则忽略"邀请的人员"字段所勾选的)
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input name="is_active" type="checkbox" checked> 是否可用
+            </label>
+        </div>
+        <button style="margin-bottom: 10px;" id="submit_btn" type="submit" class="btn btn-default">提交</button>
+    </form>
+</div>
+<div class="modal fade" id="myModal{{ i.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">此字段的帮助信息</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    公开等级用于设置不同的投票结果公布策略。<br />
+                    此表格中的<span style="color: green;" class="glyphicon  glyphicon-ok"></span>为允许查看，
+                    <span style="color: red;" class="glyphicon  glyphicon-remove"></span>为拒绝查看，<br />
+                    橘色颜色的字则代表根据用户自定义的公开等级进行处理。only....代表只有满足这个才允许查看;not....代表除了此项都可查看。
+                </p>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>公开等级\用户类型</th>
+                            <th>未登录用户</th>
+                            <th>登录用户</th>
+                            <th>全站的管理用户</th>
+                            <th>此投票的管理人员</th>
+                            <th>超级管理员</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">public_disclosure</th>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">partial_disclosure</th>
+                            <td><b style="color: orange;">only"public"</b></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">internal_disclosure</th>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">partial_internal_disclosure</th>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><b style="color: orange;">only"public"</b></td>
+                            <td><b style="color: orange;">not"secrecy"</b></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">internal_confidentiality</th>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">strictly_confidential</th>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: green;" class="glyphicon  glyphicon-ok"></span></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">system_confidentiality</th>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                            <td><span style="color: red;" class="glyphicon  glyphicon-remove"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">明白了</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var admperson_real = $("#admperson_real");
+    var admperson_on_user = [];
+    function admperson_change(e) {
+        var username = e.parentNode.innerText;
+        if (admperson_on_user.indexOf(username) != -1) {
+            admperson_on_user.splice(admperson_on_user.indexOf(username), 1);
+        } else {
+            admperson_on_user.push(username);
+        }
+        admperson_real.val(admperson_on_user)
+    };
+</script>
+<script>
+    var regperson_real = $("#regperson_real");
+    var regperson_on_user = [];
+    function regperson_change(e) {
+        var username = e.parentNode.innerText;
+        if (regperson_on_user.indexOf(username) != -1) {
+            regperson_on_user.splice(regperson_on_user.indexOf(username), 1);
+        } else {
+            regperson_on_user.push(username);
+        }
+        regperson_real.val(regperson_on_user)
+    };
+</script>
+<script type="text/javascript">
+    $(function () {
+        var text_editor = editormd("texteditor", {
+            toolbar: false,
+            height: 450,
+            value: "",
+            placeholder: "",
+            theme: "default",
+            path: '/static/editormd/lib/',
+        });
+        var ql_editor = editormd("qleditor", {
+            height: 450,
+            watch: false,
+            toolbar: false,
+            codeFold: true,
+            searchReplace: true,
+            value: "[]",
+            placeholder: "",
+            theme: "default",
+            mode: "clike",
+            path: '/static/editormd/lib/',
+        });
+    });
+</script>
+{% endblock %}
