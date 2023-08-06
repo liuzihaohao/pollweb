@@ -3,9 +3,66 @@
 {% block title%}投票列表{% endblock %}
 
 {% block content %}
-<h2>投票列表<button onclick="window.location.href='/poll/add/'" style="margin: 5px;" type="button" class="btn btn-info">新增</button></h2>
+<style>
+.taglist{
+    margin-bottom: 10px;
+}
+.taglist span{
+    font-size: inherit;
+}
+</style>
+<h2>投票列表{% if request.user.is_superuser or request.user.is_staff %}<button onclick="window.location.href='/poll/add/'" style="margin: 5px;" type="button" class="btn btn-info">新增</button>{% endif %}</h2>
 <div>
-    
+    {% for i in obj %}
+    <div class="panel panel-{% if now.timestamp < i.start_time.timestamp %}success{% elif now.timestamp < i.end_time.timestamp %}warning{% else %}primary{% endif %}">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a{% for j in i.registered_list.all %}{% if request.user == j %} href="/poll/{{i.id}}/"{% endif %}{% endfor %}>{{i.title}}</a>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <div class="taglist">
+                {% if i.public_grade == 'public_disclosure' %}
+                <span class="label label-success">公开披露</span>
+                {% elif i.public_grade == 'partial_disclosure' %}
+                <span class="label label-warning">部分公开</span>
+                {% elif i.public_grade == 'internal_disclosure' %}
+                <span class="label label-info">内部披露</span>
+                {% elif i.public_grade == 'partial_internal_disclosure' %}
+                <span class="label label-danger">部分内部公开</span>
+                {% elif i.public_grade == 'internal_confidentiality' %}
+                <span class="label label-info">内部保密</span>
+                {% elif i.public_grade == 'strictly_confidential' %}
+                <span class="label label-primary">严格保密</span>
+                {% elif i.public_grade == 'system_confidentiality' %}
+                <span class="label label-default">绝对保密</span>
+                {% endif %}
+                {% if i.is_all_registered %}
+                <span class="label label-info">所有人可参与</span>
+                {% else %}
+                <span class="label label-danger">部分人可参与</span>
+                {% endif %}
+                {% if not i.is_active %}
+                <span class="label label-warning">不可见</span>
+                {% endif %}
+                {% for j in i.admins.all %}
+                    {% if request.user == j %}
+                        <span class="label" style="background-color: purple;">你为此投票活动的管理员</span>
+                    {% endif %}
+                {% endfor %}
+                {% for j in i.registered_list.all %}
+                    {% if request.user == j %}
+                    <span class="label label-warning" style="background-color: orange;">此投票活动邀请你参加</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <p>开始时间:{{i.start_time}}</p>
+            <p>结束时间:{{i.end_time}}</p>
+            <p>创建时间:{{i.create_data}}</p>
+            <p>修改时间:{{i.last_change_data}}</p>
+        </div>
+    </div>
+    {% endfor %}
     {% if page_1.has_other_pages %}   
     <div class="text-center">
         {% if page_1.has_previous  %}

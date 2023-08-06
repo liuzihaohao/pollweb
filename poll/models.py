@@ -34,6 +34,7 @@ class Activity(models.Model):
     last_change_data=models.DateTimeField(auto_now=True)
     is_active=models.BooleanField()
     def __str__(self):
+        ordering = ['-start_time']
         return self.title
 
 class Result(models.Model):

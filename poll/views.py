@@ -8,6 +8,8 @@ from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse,HttpResponse,HttpResponseForbidden
 from django.contrib.auth.models import User
+from django.db.models import Q
+from django.utils import timezone
 from .models import *
 
 # Create your views here.
@@ -24,10 +26,10 @@ def list_poll(request):
     if request.user.is_superuser:
         all_count=Activity.objects.all()
     else:
-        all_count=Activity.objects.filter(registered_list=request.user)
-    paginator = Paginator(all_count, limit)
+        all_count=Activity.objects.filter(Q(is_active=True) | Q(admins=request.user.id))
+    paginator = Paginator(all_count.order_by('-start_time'), limit)
     page_1 = paginator.get_page(page)
-    return render(request,"poll/view.html",{"request":request,"obj":page_1})
+    return render(request,"poll/view.html",{"request":request,"obj":page_1,"now":datetime.datetime.now()})
 
 @login_required
 def add_poll(request):
@@ -59,8 +61,8 @@ def add_poll(request):
             start_time=end_time=None
             
             try:
-                start_time=datetime.datetime(int(start_time_y),int(start_time_m),int(start_time_d),int(start_time_h),int(start_time_f),int(start_time_s))
-                end_time=datetime.datetime(int(end_time_y),int(end_time_m),int(end_time_d),int(end_time_h),int(end_time_f),int(end_time_s))
+                start_time=datetime.datetime(int(start_time_y),int(start_time_m),int(start_time_d),int(start_time_h),int(start_time_f),int(start_time_s),tzinfo=timezone.utc)
+                end_time=datetime.datetime(int(end_time_y),int(end_time_m),int(end_time_d),int(end_time_h),int(end_time_f),int(end_time_s),tzinfo=timezone.utc)
             except Exception:
                 messages.add_message(request, messages.ERROR,'时间格式不正确');return render(request,"poll/add.html",{"request":request,"User":User.objects.all()})
             
@@ -95,3 +97,4 @@ def add_poll(request):
             messages.add_message(request, messages.SUCCESS,'创建成功')
             return redirect("/poll/list/")
     return redirect("/")
+
